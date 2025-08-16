@@ -19,3 +19,19 @@ export async function openPopup(
   await popup.waitForLoadState(waitState).catch(() => {});
   return popup;
 }
+
+export async function waitForUidCookie(
+  page: Page,
+  baseUrl: string,
+  timeoutMs = 15000,
+): Promise<string> {
+  const origin = new URL(baseUrl).origin;
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const cookies = await page.context().cookies(origin);
+    const uid = cookies.find((c) => c.name === 'uid')?.value;
+    if (uid) return uid;
+    await page.waitForTimeout(600);
+  }
+  throw new Error("Cookie 'uid' не найден после авторизации");
+}
