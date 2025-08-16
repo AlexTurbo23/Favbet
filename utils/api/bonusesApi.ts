@@ -4,12 +4,10 @@ import { ApiResult, BonusCountResponse, BonusType } from './types';
 const DEFAULT_BONUS_TYPES: BonusType[] = ['All', 'RiskFree', 'RealMoney', 'FreeSpin'];
 
 export class BonusesApi extends BaseApiClient {
-  // Public helper to await uid cookie for callers that need explicit control
-  async waitForUid(timeoutMs = 7000): Promise<string> {
-    await this.ensureOnOrigin();
-    const uid = (await this.waitForCookie('uid', timeoutMs)) ?? '';
-    if (!uid) throw new Error('uid cookie not found');
-    return uid;
+  // Static UID as requested
+  private static readonly FIXED_UID = '103331947';
+  async waitForUid(timeoutMs = 5000): Promise<string> {
+    return BonusesApi.FIXED_UID;
   }
 
   async getAnyBonusCount(
