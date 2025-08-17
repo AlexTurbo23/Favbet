@@ -16,10 +16,6 @@ test.describe('Test 1 - Bonuses API', () => {
       await steps.login(CREDENTIALS.email, CREDENTIALS.password);
     });
 
-    await test.step('Ensure UID cookie exists', async () => {
-      await steps.ensureUid();
-    });
-
     const bonusData = await test.step('Get bonus count from API', async () => {
       return steps.getBonusCount();
     });
