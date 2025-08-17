@@ -86,5 +86,3 @@
   - Убедитесь, что запрос идёт same-origin (из страницы), URL относительный, Referer — корректной страницы (например, /en/instant-games/)
 - 403 Forbidden:
   - Добавьте x-device-id (ensureDeviceId), убедитесь в действительной сессии (uid)
-- “uid cookie not found”:
-  - После login дождитесь uid (waitForUid) или сделайте переход на стабильную страницу домена и повторите ожидание
