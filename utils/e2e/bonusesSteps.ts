@@ -9,10 +9,7 @@ export class BonusesSteps {
   private readonly auth: AuthApi;
   private readonly bonuses: BonusesApi;
 
-  constructor(
-    private page: Page,
-    baseUrl: string,
-  ) {
+  constructor(page: Page, baseUrl: string) {
     this.auth = new AuthApi(page, baseUrl);
     this.bonuses = new BonusesApi(page, baseUrl, FIXED_UID);
   }
@@ -36,9 +33,9 @@ export class BonusesSteps {
   validateBonusCount(data: BonusCountResponse) {
     return test.step('Bonuses: validate response', async () => {
       expect(data).toBeTruthy();
-      console.warn('Bonus API response:', data);
-      if (typeof data === 'object' && data) {
-        if ('error' in data) expect((data as BonusCountResponse).error).toBe('no');
+      console.warn('Bonus API response:', data); // ✅ заменили log → warn
+      if (typeof data === 'object' && data && 'error' in data) {
+        expect((data as BonusCountResponse).error).toBe('no');
       }
     });
   }
