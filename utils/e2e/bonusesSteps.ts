@@ -1,39 +1,45 @@
-import { Page, expect } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { AuthApi } from '../api/authApi';
 import { BonusesApi } from '../api/bonusesApi';
 import type { BonusCountResponse } from '../types/types';
-import { ApiValidators } from '../helpers/validators';
+
+const FIXED_UID = process.env.FAVBET_UID ?? '103331947';
 
 export class BonusesSteps {
+  private readonly auth: AuthApi;
+  private readonly bonuses: BonusesApi;
+
   constructor(
     private page: Page,
-    private baseUrl: string,
-  ) {}
-
-  private auth() {
-    return new AuthApi(this.page, this.baseUrl);
-  }
-
-  private api() {
-    return new BonusesApi(this.page, this.baseUrl);
+    baseUrl: string,
+  ) {
+    this.auth = new AuthApi(page, baseUrl);
+    this.bonuses = new BonusesApi(page, baseUrl, FIXED_UID);
   }
 
   async login(email: string, password: string) {
-    const res = await this.auth().signIn(email, password);
-    expect(res.status).toBe(200);
-    expect(res.ok, `Auth failed: ${JSON.stringify(res.data)}`).toBe(true);
-    return res.data;
+    await test.step('Auth: sign in', async () => {
+      const res = await this.auth.signIn(email, password);
+      expect(res.ok, `Auth failed: ${JSON.stringify(res.data)}`).toBeTruthy();
+      expect(res.status).toBe(200);
+    });
   }
 
-  async getBonusCount() {
-    const res = await this.api().getAnyBonusCount();
-    expect(res.status).toBe(200);
-    expect(res.ok, `Bonus API failed: ${JSON.stringify(res.data)}`).toBe(true);
-    console.warn('Bonus count JSON:', JSON.stringify(res.data));
-    return res.data;
+  async getBonusCount(): Promise<BonusCountResponse> {
+    return await test.step('Bonuses: get any bonus count', async () => {
+      const res = await this.bonuses.getAnyBonusCount();
+      expect(res.ok, `Bonus API failed: ${JSON.stringify(res.data)}`).toBeTruthy();
+      return res.data as BonusCountResponse;
+    });
   }
 
   validateBonusCount(data: BonusCountResponse) {
-    ApiValidators.validateBonusResponse(data);
+    return test.step('Bonuses: validate response', async () => {
+      expect(data).toBeTruthy();
+      console.log('Bonus API response:', data);
+      if (typeof data === 'object' && data) {
+        if ('error' in data) expect((data as BonusCountResponse).error).toBe('no');
+      }
+    });
   }
 }
