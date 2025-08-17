@@ -33,5 +33,9 @@ export async function waitForUidCookie(
     if (uid) return uid;
     await page.waitForTimeout(600);
   }
-  throw new Error("Cookie 'uid' не найден после авторизации");
+  throw new Error("Cookie 'uid' not found within the specified timeout");
+}
+
+export async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

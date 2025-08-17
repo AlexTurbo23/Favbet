@@ -10,6 +10,12 @@ export class BaseApiClient {
   protected readonly baseUrl: string;
   private _deviceIdCache?: string;
 
+  // === Глобальная задержка между запросами (по умолчанию 1 сек) ===
+  private readonly apiDelayMs: number = Number(process.env.API_DELAY_MS ?? '1000');
+  private async delay(ms: number) {
+    if (ms > 0) await this.page.waitForTimeout(ms);
+  }
+
   constructor(page: Page, baseUrl?: string) {
     this.page = page;
     this.baseUrl = baseUrl ?? FAVBET_ORIGIN;
@@ -52,9 +58,7 @@ export class BaseApiClient {
     }
   }
 
-  /**
-   * Ensure we are on the origin so that window.fetch has a proper Referer and cookies context.
-   */
+  /** Ensure we are on the origin so that window.fetch has a proper Referer and cookies context. */
   protected async ensureOnOrigin(): Promise<void> {
     try {
       const want = this.getOrigin();
@@ -62,25 +66,50 @@ export class BaseApiClient {
       try {
         curOrigin = new URL(this.page.url()).origin;
       } catch {}
-      if (curOrigin === want) return; // уже на нужном origin, путь сохраняем (реферер)
+      if (curOrigin === want) return;
       await this.page.goto(want, { waitUntil: 'commit', timeout: 15000 });
     } catch {}
   }
 
-  protected async waitForCookie(name: string, timeoutMs = 7000): Promise<string | undefined> {
-    const start = Date.now();
-    while (Date.now() - start < timeoutMs) {
-      let cookies;
-      try {
-        cookies = await this.page.context().cookies(this.getOrigin());
-      } catch {
-        cookies = await this.page.context().cookies();
-      }
-      const cookie = cookies.find((c) => c.name === name)?.value;
-      if (cookie) return cookie;
-      await this.page.waitForTimeout(200);
+  protected async waitForCookie(
+    name: string,
+    {
+      timeoutMs = 15000,
+      pollMs = 250,
+      ensureOnOrigin = true,
+      reloadEveryMs = 3000,
+    }: {
+      timeoutMs?: number;
+      pollMs?: number;
+      ensureOnOrigin?: boolean;
+      reloadEveryMs?: number;
+    } = {},
+  ): Promise<string> {
+    const origin = this.getOrigin();
+
+    if (ensureOnOrigin && !this.page.url().startsWith(origin)) {
+      await this.page.goto(origin, { waitUntil: 'domcontentloaded' });
     }
-    return undefined;
+
+    const start = Date.now();
+    let lastReload = 0;
+
+    while (Date.now() - start < timeoutMs) {
+      const all = await this.page.context().cookies();
+      const val = all.find((c) => c.name === name)?.value;
+      if (val) return val;
+
+      if (Date.now() - lastReload > reloadEveryMs) {
+        lastReload = Date.now();
+        try {
+          await this.page.reload({ waitUntil: 'domcontentloaded' });
+        } catch {}
+      }
+
+      await this.page.waitForTimeout(pollMs);
+    }
+
+    throw new Error(`Cookie '${name}' not found within ${timeoutMs}ms`);
   }
 
   private toRelativeIfSameOrigin(url: string): string {
@@ -102,6 +131,8 @@ export class BaseApiClient {
     body: string,
     headers?: Record<string, string>,
   ): Promise<ApiResult<T>> {
+    await this.delay(this.apiDelayMs);
+
     const origin = this.getOrigin();
     let fetchUrl = url;
     try {
@@ -167,6 +198,8 @@ export class BaseApiClient {
     data: any,
     extraHeaders?: Record<string, string>,
   ) {
+    await this.delay(this.apiDelayMs);
+
     await this.ensureOnOrigin();
     const abs = this.buildUrl(pathOrUrl);
     const url = this.toRelativeIfSameOrigin(abs);
@@ -195,6 +228,8 @@ export class BaseApiClient {
     formBody: string,
     extraHeaders?: Record<string, string>,
   ) {
+    await this.delay(this.apiDelayMs);
+
     await this.ensureOnOrigin();
     const abs = this.buildUrl(pathOrUrl);
     const url = this.toRelativeIfSameOrigin(abs);

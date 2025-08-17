@@ -18,8 +18,8 @@ export class FavoritesSteps {
     const res = await this.auth().signIn(email, password);
     expect(res.ok, `login failed: ${JSON.stringify(res.data)}`).toBeTruthy();
     // Ensure UID cookie is present after login to avoid flakiness
-    const uid = await new BonusesApi(this.page, this.baseUrl).waitForUid(20000);
-    expect(uid, 'uid cookie отсутствует после логина').toBeTruthy();
+    const uid = await new BonusesApi(this.page, this.baseUrl).waitForUid(10000);
+    expect(uid, 'uid cookie is absent after login').toBeTruthy();
   }
 
   async deleteFavorites(ids: string[]) {

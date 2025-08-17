@@ -8,12 +8,12 @@ export interface FavoritesSaveBody {
 export class FavoritesApi extends BaseApiClient {
   private async ensureSessionReady(): Promise<void> {
     await this.ensureOnOrigin();
-    const uid = await this.waitForCookie('uid', 50000);
+    const uid = await this.waitForCookie('uid', { timeoutMs: 50000 });
     if (!uid) {
       // Fallback: open a stable page to ensure cookies/session propagate, then retry briefly
       const url = new URL('/en/instant-games/', this.baseUrl).toString();
       await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-      const retry = await this.waitForCookie('uid', 5000);
+      const retry = await this.waitForCookie('uid', { timeoutMs: 50000 });
       if (!retry) throw new Error('uid cookie not found');
     }
   }
