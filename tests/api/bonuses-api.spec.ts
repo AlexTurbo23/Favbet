@@ -4,7 +4,7 @@ import { BASE_URL } from '../../utils/data/baseUrl';
 import { CREDENTIALS } from '../../utils/data/credentials';
 import { BonusesSteps } from '../../utils/e2e/bonusesSteps';
 
-test.describe('Favbet API - Auth + Bonuses', () => {
+test.describe('Test 1 - Bonuses API', () => {
   test('Sign in -> get bonus count -> validate', async ({ page }) => {
     await test.step('Reset session', async () => {
       await resetSession(page, BASE_URL);
