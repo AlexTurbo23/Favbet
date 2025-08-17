@@ -20,6 +20,13 @@ export async function openPopup(
   return popup;
 }
 
+/**
+ * Waits for the 'uid' cookie to be set in the browser.
+ * @param page - The Playwright Page object.
+ * @param baseUrl - The base URL of the application.
+ * @param timeoutMs - The maximum time to wait for the cookie (default is 15000 ms).
+ * @returns The value of the 'uid' cookie.
+ */
 export async function waitForUidCookie(
   page: Page,
   baseUrl: string,

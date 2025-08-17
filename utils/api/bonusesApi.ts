@@ -1,6 +1,7 @@
 import { BaseApiClient } from '../base/baseApiClient';
 import type { Page } from '@playwright/test';
 import { ApiResult, BonusCountResponse, BonusType } from '../types/types';
+import { ENDPOINTS } from '../data/endpoints';
 
 const DEFAULT_BONUS_TYPES: BonusType[] = ['All', 'RiskFree', 'RealMoney', 'FreeSpin'];
 
@@ -17,7 +18,7 @@ export class BonusesApi extends BaseApiClient {
     types.forEach((t) => params.append('type[]', t));
 
     let res = await this.postForm<BonusCountResponse>(
-      '/accounting/api/crm_roxy/getanybonuscount',
+      ENDPOINTS.bonuses.getAnyBonusCount,
       params.toString(),
     );
 
@@ -27,7 +28,7 @@ export class BonusesApi extends BaseApiClient {
     ) {
       await this.page.waitForTimeout(500);
       res = await this.postForm<BonusCountResponse>(
-        '/accounting/api/crm_roxy/getanybonuscount',
+        ENDPOINTS.bonuses.getAnyBonusCount,
         params.toString(),
       );
     }

@@ -1,5 +1,5 @@
 import { BaseApiClient, ApiResult } from '../base/baseApiClient';
-import { ENDPOINTS } from './endpoints';
+import { ENDPOINTS } from '../data/endpoints';
 
 export interface FavoritesSaveBody {
   casino_games: { id: string }[];
