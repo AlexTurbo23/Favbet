@@ -1,4 +1,4 @@
-export type ApiResult<T = any> = {
+export type ApiResult<T = unknown> = {
   status: number;
   ok: boolean;
   data: T | string | null;

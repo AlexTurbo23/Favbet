@@ -1,12 +1,17 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as dotenv from 'dotenv';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+// Load env from .env if present
+const envPath = path.resolve(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -25,6 +30,7 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    baseURL: process.env.BASE_URL,
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
 
@@ -32,7 +38,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'on',
     // Явная конфигурация видео для стабильной записи на Windows + Chromium
-    video: { mode: 'on', size: { width: 1280, height: 720 } },
+    // Размер видео соответствует размеру viewport в проекте
+    video: 'on',
   },
 
   /* Configure projects for major browsers */

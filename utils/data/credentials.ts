@@ -1,4 +1,4 @@
 export const CREDENTIALS = {
-  email: 'turbo2387@mailinator.com',
-  password: 'RPGdga2387',
+  email: process.env.TEST_EMAIL ?? '',
+  password: process.env.TEST_PASSWORD ?? '',
 };

@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
+import type { BonusCountResponse, BonusType } from '../api/types';
 
 export class ApiValidators {
-  static validateBonusResponse(data: any) {
+  static validateBonusResponse(data: BonusCountResponse) {
     if (!data || typeof data !== 'object') {
       throw new Error(`Invalid bonus API response: ${JSON.stringify(data)}`);
     }
@@ -18,7 +19,7 @@ export class ApiValidators {
     expect(top).toHaveProperty('errorText', 'Success');
     expect(top).toHaveProperty('response');
 
-    const totals = top.response;
+    const totals: Record<BonusType, number> & Record<string, number> = top.response;
     expect(typeof totals).toBe('object');
     ['All', 'RiskFree', 'RealMoney', 'FreeSpin'].forEach((k) => {
       expect(totals).toHaveProperty(k);

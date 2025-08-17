@@ -25,7 +25,11 @@ test.describe('Favbet API - Auth + Bonuses', () => {
     });
 
     await test.step('Validate bonus count response', async () => {
-      steps.validateBonusCount(bonusData);
+      if (bonusData && typeof bonusData === 'object') {
+        steps.validateBonusCount(bonusData);
+      } else {
+        throw new Error('Invalid bonusData received from API');
+      }
     });
   });
 });

@@ -54,6 +54,7 @@ export class BaseApiClient {
       const u = new URL(this.baseUrl);
       return `${u.protocol}//${u.host}`;
     } catch {
+      // ignore invalid baseUrl, fallback to as-is
       return this.baseUrl;
     }
   }
@@ -65,10 +66,14 @@ export class BaseApiClient {
       let curOrigin = '';
       try {
         curOrigin = new URL(this.page.url()).origin;
-      } catch {}
+      } catch {
+        // ignore parse error when page has not navigated yet
+      }
       if (curOrigin === want) return;
       await this.page.goto(want, { waitUntil: 'commit', timeout: 15000 });
-    } catch {}
+    } catch {
+      // ignore navigation issues while aligning to origin
+    }
   }
 
   protected async waitForCookie(
@@ -103,7 +108,9 @@ export class BaseApiClient {
         lastReload = Date.now();
         try {
           await this.page.reload({ waitUntil: 'domcontentloaded' });
-        } catch {}
+        } catch {
+          // ignore reload errors during cookie wait loop
+        }
       }
 
       await this.page.waitForTimeout(pollMs);
@@ -126,7 +133,7 @@ export class BaseApiClient {
     }
   }
 
-  private async post<T = any>(
+  private async post<T = unknown>(
     url: string,
     body: string,
     headers?: Record<string, string>,
@@ -141,7 +148,9 @@ export class BaseApiClient {
       if (abs.origin === base.origin) {
         fetchUrl = abs.pathname + abs.search + abs.hash;
       }
-    } catch {}
+    } catch {
+      // ignore URL parse errors and keep absolute URL
+    }
 
     return (await this.page.evaluate(
       async ({ fetchUrl, body, headers, referrer }) => {
@@ -164,9 +173,9 @@ export class BaseApiClient {
     )) as unknown as ApiResult<T>;
   }
 
-  protected async postJson<T = any>(
+  protected async postJson<T = unknown>(
     pathOrUrl: string,
-    data: any,
+    data: unknown,
     extraHeaders?: Record<string, string>,
   ) {
     const url = this.buildUrl(pathOrUrl);
@@ -178,7 +187,7 @@ export class BaseApiClient {
     return this.post<T>(url, JSON.stringify(data), headers);
   }
 
-  protected async postForm<T = any>(
+  protected async postForm<T = unknown>(
     pathOrUrl: string,
     formBody: string,
     extraHeaders?: Record<string, string>,
@@ -193,9 +202,9 @@ export class BaseApiClient {
   }
 
   // Same-origin helpers: do not force referrer; use relative URL when possible so browser sets current page as Referer
-  protected async postJsonSameOrigin<T = any>(
+  protected async postJsonSameOrigin<T = unknown>(
     pathOrUrl: string,
-    data: any,
+    data: unknown,
     extraHeaders?: Record<string, string>,
   ) {
     await this.delay(this.apiDelayMs);
@@ -223,7 +232,7 @@ export class BaseApiClient {
     )) as unknown as ApiResult<T>;
   }
 
-  protected async postFormSameOrigin<T = any>(
+  protected async postFormSameOrigin<T = unknown>(
     pathOrUrl: string,
     formBody: string,
     extraHeaders?: Record<string, string>,

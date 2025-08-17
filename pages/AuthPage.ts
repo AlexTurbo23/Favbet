@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 type AuthElements = {
   emailInput: Locator;
@@ -22,9 +22,9 @@ export class AuthPage {
 
   private createElements(): AuthElements {
     return {
-      emailInput: this.page.getByLabel(/email|e-mail|логін|login|пошта/i),
-      passwordInput: this.page.getByLabel(/password|пароль/i),
-      submitButton: this.page.getByRole('button', { name: /log in|sign in|увійти|войти/i }).first(),
+      emailInput: this.page.locator("[data-role='login-page-login-input']"),
+      passwordInput: this.page.locator("[data-role='login-page-password-input']"),
+      submitButton: this.page.locator("[data-role='login-page-submit-btn']"),
     };
   }
 

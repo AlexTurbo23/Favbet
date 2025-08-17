@@ -31,13 +31,11 @@ export class HomePage {
 
   private createElements(): HomeElements {
     return {
-      loginLink: this.page.getByRole('link', { name: /log in|sign in|увійти|войти/i }).first(),
-      liveNavLink: this.page.getByRole('link', { name: /live|лайв|в лайві|в лайве/i }).first(),
-      favoritesLink: this.page
-        .getByRole('link', { name: /favorites|favourites|избранное|обране/i })
-        .first(),
+      loginLink: this.page.locator("[data-role='header-login-button']"),
+      liveNavLink: this.page.locator("[data-role='nav-item /live/all/']"),
+      favoritesLink: this.page.locator("[data-role='sports-favorites-link-text']"),
       notificationsImg: this.page.locator('#notifications').getByRole('img').first(),
-      depositLink: this.page.getByRole('link', { name: /deposit|депозит|поповнити/i }),
+      depositLink: this.page.locator("[data-role='header-deposit-depositButton']"),
       youTubeLink: this.page.getByRole('link', { name: 'Youtube' }),
       userLogoHeader: this.page.locator('[data-role="user-logo-header"]'),
       languageSelect: this.page.locator('[data-role="settings-language-select-trigger"]'),

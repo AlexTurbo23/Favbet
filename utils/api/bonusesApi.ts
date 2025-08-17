@@ -1,10 +1,15 @@
 import { BaseApiClient } from '../base/baseApiClient';
+import type { Page } from '@playwright/test';
 import { ApiResult, BonusCountResponse, BonusType } from './types';
 
 const DEFAULT_BONUS_TYPES: BonusType[] = ['All', 'RiskFree', 'RealMoney', 'FreeSpin'];
 
 export class BonusesApi extends BaseApiClient {
-  constructor(page: any, baseUrl: string, private readonly fixedUid?: string) {
+  constructor(
+    page: Page,
+    baseUrl: string,
+    private readonly fixedUid?: string,
+  ) {
     super(page, baseUrl);
   }
 
@@ -26,7 +31,9 @@ export class BonusesApi extends BaseApiClient {
         lastReload = Date.now();
         try {
           await this.page.reload({ waitUntil: 'domcontentloaded' });
-        } catch {}
+        } catch {
+          // ignore reload error while waiting for uid cookie
+        }
       }
 
       await this.page.waitForTimeout(250);
@@ -53,9 +60,15 @@ export class BonusesApi extends BaseApiClient {
       params.toString(),
     );
 
-    if (!res.ok || (res.data as any)?.error !== 'no') {
+    if (
+      !res.ok ||
+      (res.data && typeof res.data === 'object' && 'error' in res.data && res.data.error !== 'no')
+    ) {
       await this.page.waitForTimeout(500);
-      res = await this.postForm('/accounting/api/crm_roxy/getanybonuscount', params.toString());
+      res = await this.postForm<BonusCountResponse>(
+        '/accounting/api/crm_roxy/getanybonuscount',
+        params.toString(),
+      );
     }
 
     return res;

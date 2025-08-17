@@ -54,7 +54,7 @@ export class FavoritesApi extends BaseApiClient {
 
   // Helper: parse favorite game ids from various backend shapes
   private extractFavoriteIds(raw: unknown): string[] {
-    let data: any = raw;
+    let data: unknown = raw;
     if (typeof raw === 'string') {
       try {
         data = JSON.parse(raw);
@@ -62,23 +62,48 @@ export class FavoritesApi extends BaseApiClient {
         return [];
       }
     }
-    const candidates: any[] = [
-      data?.entities?.casino_games,
-      data?.response?.entities?.casino_games,
-      data?.response?.casino_games,
-      data?.data?.entities?.casino_games,
-      data?.casino_games,
+    const d = data && typeof data === 'object' ? (data as Record<string, unknown>) : undefined;
+    const get = (obj: Record<string, unknown> | undefined, path: string[]): unknown =>
+      path.reduce<unknown>((acc, key) => {
+        if (
+          acc &&
+          typeof acc === 'object' &&
+          acc !== null &&
+          key in (acc as Record<string, unknown>)
+        ) {
+          return (acc as Record<string, unknown>)[key];
+        }
+        return undefined;
+      }, obj as unknown);
+    const candidates: unknown[] = [
+      get(d, ['entities', 'casino_games']),
+      get(d, ['response', 'entities', 'casino_games']),
+      get(d, ['response', 'casino_games']),
+      get(d, ['data', 'entities', 'casino_games']),
+      get(d, ['casino_games']),
     ];
-    let items: any[] | undefined = candidates.find((v) => Array.isArray(v));
+    let items: unknown = candidates.find((v) => Array.isArray(v));
     if (!items) {
-      const maybe: any = Object.values(data || {}).find((v: any) =>
-        Array.isArray((v as any)?.casino_games),
-      );
-      items = (maybe as any)?.casino_games as any[] | undefined;
+      const maybe = Object.values(d || {}).find((v) => {
+        if (v && typeof v === 'object') {
+          const o = v as Record<string, unknown>;
+          const cg = o.casino_games as unknown;
+          return Array.isArray(cg);
+        }
+        return false;
+      }) as Record<string, unknown> | undefined;
+      items = maybe?.casino_games as unknown;
     }
     if (!Array.isArray(items)) return [];
-    const ids = items
-      .map((x) => (typeof x === 'string' ? x : x?.id || x?.slug || ''))
+    const ids = (items as unknown[])
+      .map((x) => {
+        if (typeof x === 'string') return x;
+        if (x && typeof x === 'object') {
+          const o = x as Record<string, unknown>;
+          return (typeof o.id === 'string' && o.id) || (typeof o.slug === 'string' && o.slug) || '';
+        }
+        return '';
+      })
       .filter((s): s is string => typeof s === 'string' && s.length > 0);
     return Array.from(new Set(ids));
   }

@@ -1,12 +1,16 @@
 import { Page, expect } from '@playwright/test';
 import { AuthApi } from '../api/authApi';
 import { BonusesApi } from '../api/bonusesApi';
+import type { BonusCountResponse } from '../api/types';
 import { ApiValidators } from '../helpers/validators';
 
-const FIXED_UID = process.env.FAVBET_UID ?? '103331947';
+const FIXED_UID = process.env.FAVBET_UID; // optional; when set, we validate exact match
 
 export class BonusesSteps {
-  constructor(private page: Page, private baseUrl: string) {}
+  constructor(
+    private page: Page,
+    private baseUrl: string,
+  ) {}
 
   private auth() {
     return new AuthApi(this.page, this.baseUrl);
@@ -26,7 +30,9 @@ export class BonusesSteps {
   async ensureUid() {
     const uid = await this.api().waitForUid(10_000);
     expect(uid, 'uid is absent after login').toBeTruthy();
-    expect(uid, 'uid does not match expected fixed value').toBe(FIXED_UID);
+    if (FIXED_UID) {
+      expect(uid, 'uid does not match expected fixed value from FAVBET_UID').toBe(FIXED_UID);
+    }
     return uid;
   }
 
@@ -34,11 +40,11 @@ export class BonusesSteps {
     const res = await this.api().getAnyBonusCount();
     expect(res.status).toBe(200);
     expect(res.ok, `Bonus API failed: ${JSON.stringify(res.data)}`).toBe(true);
-    console.log('Bonus count JSON:', JSON.stringify(res.data));
+    console.warn('Bonus count JSON:', JSON.stringify(res.data));
     return res.data;
   }
 
-  validateBonusCount(data: any) {
+  validateBonusCount(data: BonusCountResponse) {
     ApiValidators.validateBonusResponse(data);
   }
 }
