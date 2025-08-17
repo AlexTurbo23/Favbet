@@ -1,7 +1,7 @@
 import { Page, expect } from '@playwright/test';
 import { AuthApi } from '../api/authApi';
 import { BonusesApi } from '../api/bonusesApi';
-import type { BonusCountResponse } from '../api/types';
+import type { BonusCountResponse } from '../types/types';
 import { ApiValidators } from '../helpers/validators';
 
 const FIXED_UID = process.env.FAVBET_UID; // optional; when set, we validate exact match

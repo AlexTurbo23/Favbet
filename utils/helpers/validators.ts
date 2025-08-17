@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import type { BonusCountResponse, BonusType } from '../api/types';
+import type { BonusCountResponse, BonusType } from '../types/types';
 
 export class ApiValidators {
   static validateBonusResponse(data: BonusCountResponse) {

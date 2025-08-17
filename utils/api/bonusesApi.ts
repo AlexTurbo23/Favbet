@@ -1,6 +1,6 @@
 import { BaseApiClient } from '../base/baseApiClient';
 import type { Page } from '@playwright/test';
-import { ApiResult, BonusCountResponse, BonusType } from './types';
+import { ApiResult, BonusCountResponse, BonusType } from '../types/types';
 
 const DEFAULT_BONUS_TYPES: BonusType[] = ['All', 'RiskFree', 'RealMoney', 'FreeSpin'];
 

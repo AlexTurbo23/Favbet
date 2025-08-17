@@ -1,5 +1,5 @@
 import { BaseApiClient } from '../base/baseApiClient';
-import { ApiResult } from './types';
+import { ApiResult } from '../types/types';
 
 export class AuthApi extends BaseApiClient {
   async signIn(email: string, password: string): Promise<ApiResult> {

@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
-import { ApiResult } from '../api/types';
+import { ApiResult } from '../types/types';
 
-export type { ApiResult } from '../api/types';
+export type { ApiResult } from '../types/types';
 
 const FAVBET_ORIGIN = 'https://www.favbet.ua';
 

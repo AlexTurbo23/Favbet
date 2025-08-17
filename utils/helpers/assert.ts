@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import type { ApiResult } from '../api/types';
+import type { ApiResult } from '../types/types';
 
 export function assertOk<T = unknown>(res: ApiResult<T>, msg?: string): T | ApiResult<T> {
   expect(res.status, msg).toBeGreaterThanOrEqual(200);
