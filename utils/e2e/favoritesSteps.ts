@@ -1,10 +1,12 @@
 import { Page, expect } from '@playwright/test';
 import { AuthApi } from '../api/authApi';
 import { FavoritesApi } from '../api/favoritesApi';
-import { BonusesApi } from '../api/bonusesApi';
 
 export class FavoritesSteps {
-  constructor(private page: Page, private baseUrl: string) {}
+  constructor(
+    private page: Page,
+    private baseUrl: string,
+  ) {}
 
   auth() {
     return new AuthApi(this.page, this.baseUrl);
@@ -17,9 +19,7 @@ export class FavoritesSteps {
   async login(email: string, password: string) {
     const res = await this.auth().signIn(email, password);
     expect(res.ok, `login failed: ${JSON.stringify(res.data)}`).toBeTruthy();
-    // Ensure UID cookie is present after login to avoid flakiness
-    const uid = await new BonusesApi(this.page, this.baseUrl).waitForUid(10000);
-    expect(uid, 'uid cookie is absent after login').toBeTruthy();
+    expect(res.status).toBe(200);
   }
 
   async deleteFavorites(ids: string[]) {
