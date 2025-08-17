@@ -36,7 +36,7 @@ export class BonusesSteps {
   validateBonusCount(data: BonusCountResponse) {
     return test.step('Bonuses: validate response', async () => {
       expect(data).toBeTruthy();
-      console.log('Bonus API response:', data);
+      console.warn('Bonus API response:', data);
       if (typeof data === 'object' && data) {
         if ('error' in data) expect((data as BonusCountResponse).error).toBe('no');
       }
