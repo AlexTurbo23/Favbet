@@ -19,7 +19,7 @@
   - api/ — OOP-клиенты API (authApi.ts, bonusesApi.ts, favoritesApi.ts), endpoints.ts, types.ts
   - e2e/ — Steps-слой (bonusesSteps.ts, favoritesSteps.ts)
   - base/ — BaseApiClient (same-origin fetch, helper’ы)
-  - helpers/ — assert, retry, validators, e2eHelpers
+  - helpers/ — validators, e2eHelpers
   - session/ — resetSession
   - data/ — BASE_URL и CREDENTIALS
 
