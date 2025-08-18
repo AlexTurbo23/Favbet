@@ -9,8 +9,8 @@ export class BaseApiClient {
   protected readonly baseUrl: string;
   private _deviceIdCache?: string;
 
-  // === Глобальная задержка между запросами (по умолчанию 1 сек) ===
-  private readonly apiDelayMs: number = Number(process.env.API_DELAY_MS ?? '1000');
+  // === Глобальная задержка между запросами (по умолчанию 500 ms) ===
+  private readonly apiDelayMs: number = Number(process.env.API_DELAY_MS ?? '500');
   private async delay(ms: number) {
     if (ms > 0) await this.page.waitForTimeout(ms);
   }
