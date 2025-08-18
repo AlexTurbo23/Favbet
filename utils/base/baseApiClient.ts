@@ -1,9 +1,8 @@
 import { Page } from '@playwright/test';
 import { ApiResult } from '../types/types';
+import { env } from 'process';
 
 export type { ApiResult } from '../types/types';
-
-const FAVBET_ORIGIN = 'https://www.favbet.ua';
 
 export class BaseApiClient {
   protected readonly page: Page;
@@ -18,7 +17,7 @@ export class BaseApiClient {
 
   constructor(page: Page, baseUrl?: string) {
     this.page = page;
-    this.baseUrl = baseUrl ?? FAVBET_ORIGIN;
+    this.baseUrl = baseUrl ?? env.BASE_URL ?? '';
   }
 
   protected async ensureDeviceId(key = 'x-device-id'): Promise<string> {
@@ -28,7 +27,6 @@ export class BaseApiClient {
       try {
         let v = localStorage.getItem(k) || '';
         if (!v) {
-          // simple UUID-ish fallback
           const rand = () => Math.random().toString(16).slice(2);
           v = `${rand()}-${rand()}-${rand()}-${rand()}`;
           localStorage.setItem(k, v);
@@ -54,7 +52,6 @@ export class BaseApiClient {
       const u = new URL(this.baseUrl);
       return `${u.protocol}//${u.host}`;
     } catch {
-      // ignore invalid baseUrl, fallback to as-is
       return this.baseUrl;
     }
   }
