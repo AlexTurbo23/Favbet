@@ -10,18 +10,19 @@ export class ApiValidators {
       throw new Error(`Bonus API returned error: ${JSON.stringify(data)}`);
     }
 
-    expect(data).toHaveProperty('error', 'no');
-    expect(data).toHaveProperty('error_code', '');
-    expect(data).toHaveProperty('response');
+    expect(data).toMatchObject({
+      error: 'no',
+      error_code: '',
+      response: {
+        errorCode: 0,
+        errorText: 'Success',
+        response: expect.any(Object),
+      },
+    });
 
-    const top = data.response;
-    expect(top).toHaveProperty('errorCode', 0);
-    expect(top).toHaveProperty('errorText', 'Success');
-    expect(top).toHaveProperty('response');
-
-    const totals: Record<BonusType, number> & Record<string, number> = top.response;
+    const totals: Record<BonusType, number> & Record<string, number> = data.response.response;
     expect(typeof totals).toBe('object');
-    ['All', 'RiskFree', 'RealMoney', 'FreeSpin'].forEach((k) => {
+    (['All', 'RiskFree', 'RealMoney', 'FreeSpin'] as const).forEach((k) => {
       expect(totals).toHaveProperty(k);
       expect(typeof totals[k]).toBe('number');
     });
